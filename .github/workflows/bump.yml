@@ -1,0 +1,49 @@
+# Keeps the formula current by polling Nupp's published GitHub releases. The
+# first successful release creates the formula; later releases replace its
+# platform URLs and archive hashes.
+name: Bump formula
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 */6 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bump-formula
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check out the tap
+        uses: actions/checkout@v6
+
+      - name: Update the formula to the latest Nupp release
+        run: .github/scripts/update-formula.sh
+
+      - name: Validate the formula
+        if: hashFiles('Formula/nupp.rb') != ''
+        run: ruby -c Formula/nupp.rb
+
+      - name: Commit an updated formula
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- Formula/nupp.rb && \
+             ! git ls-files --others --error-unmatch Formula/nupp.rb >/dev/null 2>&1; then
+            echo "Formula is current"
+            exit 0
+          fi
+          version=$(sed -n 's|.*releases/download/v\([^/]*\)/.*|\1|p' \
+            Formula/nupp.rb | head -1)
+          test -n "$version"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/nupp.rb
+          git commit -m "Bump Nupp to $version"
+          git push
