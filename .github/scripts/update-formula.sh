@@ -52,7 +52,9 @@ fi
 
 macos_archive="$release_directory/nupp-macos-arm64.tar.gz"
 test -f "$macos_archive"
-tar -tzf "$macos_archive" | grep -Eq '^(\./)?nupp$'
+archive_listing=$(mktemp)
+tar -tzf "$macos_archive" > "$archive_listing"
+grep -Eq '^(\./)?nupp$' "$archive_listing"
 
 macos_sha=$(shasum -a 256 "$macos_archive" | awk '{print $1}')
 
