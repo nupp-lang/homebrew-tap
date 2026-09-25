@@ -1,8 +1,8 @@
 class Nupp < Formula
   desc "Typed programming language for LuaJIT with an optimizing compiler"
   homepage "https://nupp.org"
-  url "https://github.com/nupp-lang/nupp/releases/download/v0.0.11/nupp-macos-arm64.tar.gz"
-  sha256 "4e1bf3145adbbd539cab9394bf6b94ca29fb5ed0edbd33a1f365c7b70aeca87a"
+  url "https://github.com/nupp-lang/nupp/releases/download/v0.0.13/nupp-macos-arm64.tar.gz"
+  sha256 "13ba16e1405e19d747206a1431da98669e22c45363348982ce805464f71171d6"
 
   depends_on arch: :arm64
   depends_on :macos
